@@ -1,6 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import path from "path";
+import fs from "fs";
+import { execSync } from "child_process";
 import { connectDB } from './config/db.js';
 import productRoutes from "./routes/product.route.js"
 
@@ -27,9 +29,13 @@ if (process.env.NODE_ENV === "production") {
     } catch (err) {
         console.error("Build failed:", err);
     }
+    app.use(express.static(path.join(__dirname, "/frontend/dist")));
+    app.get("*", (req, res) => {
+        res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+    });
 }
 
-app.listen(5000, () => {
+app.listen(PORT, () => {
     connectDB();
     console.log("Server started at http://localhost:"+ PORT);
 });
