@@ -19,11 +19,14 @@ app.use(express.json()); // allows us to accept JSON data in the req.body
 app.use("/api/products", productRoutes);
 
 if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "../../frontend/dist")));
-    app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "../../frontend", "dist", "index.html"));
-    });
-    
+    try {
+        if (!fs.existsSync(path.join(__dirname, "/frontend/dist"))) {
+            console.log("Building frontend...");
+            execSync("npm run build --prefix frontend", { stdio: 'inherit' });
+        }
+    } catch (err) {
+        console.error("Build failed:", err);
+    }
 }
 
 app.listen(5000, () => {
